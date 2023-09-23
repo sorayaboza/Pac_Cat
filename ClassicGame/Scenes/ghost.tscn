@@ -1,0 +1,75 @@
+[gd_scene load_steps=13 format=3 uid="uid://n1i0wwg7hv03"]
+
+[ext_resource type="Texture2D" uid="uid://dhw13ryjrtvv2" path="res://Assets/Ghost/ghost_body_01.png" id="1_je6je"]
+[ext_resource type="Script" path="res://Scenes/ghost.gd" id="1_m54k1"]
+[ext_resource type="Texture2D" uid="uid://ry2f65allg2k" path="res://Assets/Ghost/ghost_body_02.png" id="2_xcqkd"]
+[ext_resource type="Texture2D" uid="uid://dvy2nmij7isdj" path="res://Assets/Ghost/ghost_eyes_right.png" id="3_amwlk"]
+[ext_resource type="Script" path="res://Scenes/ghost_body_sprite.gd" id="3_pspwe"]
+[ext_resource type="Script" path="res://Scenes/ghost_eyes_sprite.gd" id="5_d1prn"]
+[ext_resource type="Texture2D" uid="uid://c4ff5v0ebxgc" path="res://Assets/Ghost/ghost_eyes_up.png" id="6_8mfca"]
+[ext_resource type="Texture2D" uid="uid://csxdodxsdkxho" path="res://Assets/Ghost/ghost_eyes_down.png" id="7_wa0nb"]
+[ext_resource type="Texture2D" uid="uid://kdbxeecltkwd" path="res://Assets/Ghost/ghost_eyes_left.png" id="8_pvmyq"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_vecpv"]
+radius = 9.0
+
+[sub_resource type="Animation" id="Animation_yicdl"]
+resource_name = "moving"
+length = 0.5
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("BodySprite:texture")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.25),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [ExtResource("1_je6je"), ExtResource("2_xcqkd")]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_mcegj"]
+_data = {
+"moving": SubResource("Animation_yicdl")
+}
+
+[node name="Ghost" type="Area2D"]
+light_mask = 16
+script = ExtResource("1_m54k1")
+
+[node name="BodySprite" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = ExtResource("1_je6je")
+script = ExtResource("3_pspwe")
+
+[node name="EyesSprite" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = ExtResource("3_amwlk")
+script = ExtResource("5_d1prn")
+up = ExtResource("6_8mfca")
+down = ExtResource("7_wa0nb")
+left = ExtResource("8_pvmyq")
+right = ExtResource("3_amwlk")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_vecpv")
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_mcegj")
+}
+
+[node name="ScatterTimer" type="Timer" parent="."]
+wait_time = 6.0
+one_shot = true
+
+[node name="UpdateChasingTargetPositionTimer" type="Timer" parent="."]
+wait_time = 0.2
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="timeout" from="ScatterTimer" to="." method="_on_scatter_timer_timeout"]
+[connection signal="timeout" from="UpdateChasingTargetPositionTimer" to="." method="_on_update_chasing_target_position_timer_timeout"]
